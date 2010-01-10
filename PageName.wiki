@@ -1,0 +1,34 @@
+#summary One-sentence summary of this page.
+= 介绍 =
+这几个脚本主要利用来自 [http://ftp.apnic.net/apnic/dbase/data/country-ipv4.lst] 的数据生成路由命令脚本, 让vpn客户端在进行连接的时候自动执行. 通过这些路由脚本, 可以让用户在使用vpn作为默认网络网关的时候, 不使用vpn进行对中国国内ip的访问, 从而减轻vpn的负担, 和增加访问国内网站的速度.
+
+= 基本约定 =
+
+在使用这些脚本之前, 请确保你在自己的电脑上已经成功配置好一个vpn连接(pptp 或者 openvpn), 并且让之以默认网络网关的方式运行, 这通常也是默认配置, 即vpn接入之后所有网络流量都通过vpn进行.
+
+
+= 使用方法 =
+
+== Mac OSX ==
+===openvpn===
+  (这里假定用户使用Tunnelblick作为openvpn客户端)
+  # 下载 chnroutes_ovpn_mac
+  # 从终端进入下载目录, 执行`python chnroutes_ovpn_mac`, 执行完毕之后同一目录下将生成两个新文件'vpnup'和'vpndown'
+  # 在终端里运行命令 `chmod a+x vpnup vpndown` 把这两个文件设置为可执行
+  # 把这两个文件copy到openvpn的配置目录并修过openvpn配置文件, 在末尾加上两句:
+    {{{
+    up vpnup
+    down vpndown
+    }}}
+  # 设置完毕, 重连openvpn. 你可以通过`netstat -nr`命令的输出来确认vpnup/down
+
+*需要注意的是, 在Tunnelblick上不能选取Set nameserver选项, 否则这两个脚本将不能被调用*
+
+== Linux ==
+
+== Windows ==
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
