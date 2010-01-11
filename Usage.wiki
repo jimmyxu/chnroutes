@@ -47,7 +47,9 @@
 
 = Windows =
 ===openvpn===
-由于windows上的route命令执行时间相当长, 所以不能直接在openvpn脚本里进行调用, 否则会导致超时错误. 使用步骤是下载chnroutes_ovpn_win, 然后在cmd里利用`python chnroutes_ovpn_win` 生成vpn路由批处理文件 vpnup.bat. 在连接vpn之前手动执行该批处理文件就可以, 不需要等待执行完毕.
+由于windows上的route命令执行时间相当长, 所以不能直接在openvpn脚本里进行调用, 否则会导致超时错误. 使用步骤是下载chnroutes_ovpn_win, 然后在cmd里利用`python chnroutes_ovpn_win` 生成vpn路由批处理文件 vpnup.bat 和vpndown.bat. 在连接vpn之前手动执行vpnup.bat就可以设置这些路由, 这时不需要等待执行完毕就可以进行vpn拨号.
+在断开vpn之后, 如果想删除这些路由, 可以执行vpndown.bat文件.
+
 对于没有python的windows用户, 可以直接下载已经预生成的vpnup.bat文件. 因为ip范围改变频率不高, 所以也不会有什么影响.
 ===pptp===
 同上, 由于windows上的pptp不支持拨号脚本, 所以也只能在进行拨号之前手动执行vpnup.bat文件以设置路由表.
