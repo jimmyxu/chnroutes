@@ -22,8 +22,12 @@
 
 进一步的测试, 你可以使用 route 命令进行, 如执行 `route get 8.8.8.8`, 这里8.8.8.8是google dns的ip, 位置在国外. 你可以看到在输出结果的gateway字段与vpn的网关一致; 再尝试`route get 202.96.134.133` 这里202.96.134.133是一个国内的ip, 这时候输出结果的gateway将变成与没连接vpn之前的网关.
 
-
-*需要注意的是, 在Tunnelblick上不能选取Set nameserver选项, 否则这两个脚本将不能被调用*
+需要注意的是, 默认情况下, 在Tunnelblick上不能选取Set nameserver选项, 否则这两个脚本将不能被调用. 但对于需要使用该功能的用户, 你可以使用在本项目下载页面提供的补丁文件, 让tunnelblick可以同时支持定制启动脚本. 使用方法, 在Terminal里 进入tunnelblick的Resources目录. 如我这里 Tunnelblick是在 /Applications里, 使用如下命令: 
+{{{
+cd /Applications/Tunnelblick.app/Contents/Resources
+patch -p1 < path_to_the_patch_file
+}}}
+打过补丁之后, Tunnelblick的set nameserver 功能就可以与up/down script一起使用了. 另外打补丁之前要注意Tunnelblick的版本号必须是 v3.0b24(最新)
 
 ===pptp===
   # 下载 chnroutes_pptp_mac
@@ -53,3 +57,6 @@
 对于没有python的windows用户, 可以直接下载已经预生成的vpnup.bat文件. 因为ip范围改变频率不高, 所以也不会有什么影响.
 ===pptp===
 同上, 由于windows上的pptp不支持拨号脚本, 所以也只能在进行拨号之前手动执行vpnup.bat文件以设置路由表.
+
+==信息反馈==
+本项目的脚本都是在使用路由器进行拨号的情况下测试通过的, 如果在其它拨号方式下, 脚本不能运作, 请在本页添加comment说明. 谢谢!
