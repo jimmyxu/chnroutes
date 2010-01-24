@@ -1,5 +1,5 @@
 #summary 使用方法
-#labels Featured
+#labels Featured,Phase-Deploy
 = 介绍 =
 这几个脚本主要利用来自 [http://ftp.apnic.net/apnic/dbase/data/country-ipv4.lst] 的数据生成路由命令脚本, 让vpn客户端在进行连接的时候自动执行. 通过这些路由脚本, 可以让用户在使用vpn作为默认网络网关的时候, 不使用vpn进行对中国国内ip的访问, 从而减轻vpn的负担, 和增加访问国内网站的速度.
 
@@ -45,18 +45,26 @@ patch -p1 < path_to_the_patch_file
     up vpnup
     down vpndown
     }}}
-  # 设置完毕, 重连openvpn.  测试方法同mac osx, 但需要使用 `ip route` 代替mac上的 `route` 命令
+  # 设置完毕, 重连openvpn.  测试方法同mac osx, 但需要使用 `ip route` 代替mac上的 `route get` 命令
 ===pptp===
 使用跟openvpn_linux相同的生成脚本, 区别是把生成的vpnup文件改名为 ip-pre-up, 并把ip-pre-up 拷贝到 /etc/ppp目录, vpndown 拷贝到 /etc/ppp/ip-down.d 目录. 测试步骤同上.
 
 = Windows =
 ===openvpn===
-由于windows上的route命令执行时间相当长, 所以不能直接在openvpn脚本里进行调用, 否则会导致超时错误. 使用步骤是下载chnroutes_ovpn_win, 然后在cmd里利用`python chnroutes_ovpn_win` 生成vpn路由批处理文件 vpnup.bat 和vpndown.bat. 在连接vpn之前手动执行vpnup.bat就可以设置这些路由, 这时不需要等待执行完毕就可以进行vpn拨号.
-在断开vpn之后, 如果想删除这些路由, 可以执行vpndown.bat文件.
+  # 下载 chnroutes_ovpn_win 文件
+  # 对于已经安装有python的用户, 在命令行方式进入到下载到的文件所在目录, 执行`python chnroutes_ovpn_win`, 执行完毕之后同一目录下将生成'vpnup.bat', 'vpnup.vbs', 'vpndown.bat'和'vpndown.vbs'共四个文件. (如果你没有python, 可以直接下载项目下载页面上的pre_created_for_win.zip文件, 解开之后你将能得到预生成的上述4个文件)
+  # 把上述的四个新生成的文件copy到openvpn配置文件所在的目录
+  # 编辑openvpn配置文件, 在末尾加上两句:
+    {{{
+    up vpnup.vbs
+    down vpndown.vbs
+    }}}
+  # 设置完毕, 重连openvpn. 你可以分别进入 http://www.cz88.net/ 和 http://whatismyipaddress.com/ 这两个网站, 如果配置正确, 在cz88网站上你将看到你的ip显示为连接vpn之前的公网ip, 而另外一个网站则显示为你的vpn服务器的公网ip. (需要注意的是vpnup.vbs其实是调用了vpnup.bat文件, 这个bat文件大概需要1分钟的时间才能完全添加所有路由信息. 也就是说在openvpn-gui显示连接已经完成的时候, 该bat文件还在执行中)
 
-对于没有python的windows用户, 可以直接下载已经预生成的vpnup.bat文件. 因为ip范围改变频率不高, 所以也不会有什么影响.
+
+对于使用项目下载页面里的预生成的bat文件的用户, 这些预生成的文件将会不定期进行更新, 因为ipv4的范围的变化不会十分大, 所以路由信息文件应该不需要频繁更新.
 ===pptp===
-同上, 由于windows上的pptp不支持拨号脚本, 所以也只能在进行拨号之前手动执行vpnup.bat文件以设置路由表.
+文件生成/获取方式同上, 但由于windows上的pptp不支持拨号脚本, 所以也只能在进行拨号之前手动执行vpnup.bat文件以设置路由表. 而在断开vpn之后, 如果你觉得有必要, 可以运行vpndown.bat把这些路由信息给清理掉.
 
 ==信息反馈==
-本项目的脚本都是在使用路由器进行拨号的情况下测试通过的, 如果在其它拨号方式下, 脚本不能运作, 请在本页添加comment说明. 谢谢!
+本项目的脚本都是在使用路由器进行拨号的情况下测试通过的, 如果在其它拨号方式下, 脚本不能运作, 请在本页添加comment说明. 或者添加一个新的issue, 谢谢!
