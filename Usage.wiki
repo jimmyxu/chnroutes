@@ -54,11 +54,13 @@ patch -p1 < path_to_the_patch_file
   # 下载 chnroutes_ovpn_win 文件
   # 对于已经安装有python的用户, 在命令行方式进入到下载到的文件所在目录, 执行`python chnroutes_ovpn_win`, 执行完毕之后同一目录下将生成'vpnup.bat', 'vpnup.vbs', 'vpndown.bat'和'vpndown.vbs'共四个文件. (如果你没有python, 可以直接下载项目下载页面上的pre_created_for_win.zip文件, 解开之后你将能得到预生成的上述4个文件)
   # 把上述的四个新生成的文件copy到openvpn配置文件所在的目录
-  # 编辑openvpn配置文件, 在末尾加上两句:
+  # 编辑openvpn配置文件, 在末尾加上以下三句:
     {{{
+    script-security 2
     up vpnup.vbs
     down vpndown.vbs
     }}}
+    这里的第一句的目的是保证有足够的安全级别可以让openvpn调用自定义脚本, 第二句up是连接openvpn之后自动调用路由添加脚本, 第三句是用来在openvpn断开之后自动清理之前添加上的路由信息.
   # 设置完毕, 重连openvpn. 你可以分别进入 http://www.cz88.net/ 和 http://whatismyipaddress.com/ 这两个网站, 如果配置正确, 在cz88网站上你将看到你的ip显示为连接vpn之前的公网ip, 而另外一个网站则显示为你的vpn服务器的公网ip. (需要注意的是vpnup.vbs其实是调用了vpnup.bat文件, 这个bat文件大概需要1分钟的时间才能完全添加所有路由信息. 也就是说在openvpn-gui显示连接已经完成的时候, 该bat文件还在执行中)
 
 
@@ -66,5 +68,20 @@ patch -p1 < path_to_the_patch_file
 ===pptp===
 文件生成/获取方式同上, 但由于windows上的pptp不支持拨号脚本, 所以也只能在进行拨号之前手动执行vpnup.bat文件以设置路由表. 而在断开vpn之后, 如果你觉得有必要, 可以运行vpndown.bat把这些路由信息给清理掉.
 
+= Android = 
+===openvpn===
+  # 下载 chnroutes_ovpn_android 文件到任意安装有python环境的机器上
+  # 在命令行里进入下载目录, 执行`python chnroutes_ovpn_android`, 这讲生成'vpnup.sh'和'vpndown.sh'两个文件.
+  # 把步骤2生成的两个文件拷贝到 android 的 /sdcard/openvpn/目录下, 然后修改openvpn配置文件, 在文件中加上以上三句:
+    {{{
+    script-security 2
+    up "/system/bin/sh /sdcard/openvpn/vpnup.sh"
+    down "/system/bin/sh /sdcard/openvpn/vpndown.sh"
+    }}}
+    注意自行修改其中的路径以符合你的android rom的实际路径
+
+
+另外, 这里假定了你的android已经安装过busybox, 否则请先安装busybox再进行以上操作, 还需要知道的是, 这个脚本在手机上执行会花费比较长的时间, 如非必要, 就不要用了. 也许采用非redirect-gateway方式, 然后在ovpn配置文件里添加几条需要路由的ip段是比较快捷方便的做法.
+
 ==信息反馈==
-本项目的脚本都是在使用路由器进行拨号的情况下测试通过的, 如果在其它拨号方式下, 脚本不能运作, 请在本页添加comment说明. 或者添加一个新的issue, 谢谢!
+本项目的脚本都是在使用路由器进行拨号的情况下测试通过的, 如果在其它拨号方式下, 脚本不能运作, 请在本页添加comment说明. 或者添加一个新的issue. 另外, 在配合openvpn使用的时候, 可能会出现一种情况是因为网络质量不好, openvpn非主动断开, 这时候vpndown脚本也会被自动调用, 但重新连上之后, 可能会找不到默认的路由而添加失败, 这时候你可以通过停止openvpn重连, 并手动设置好原来的默认路由再重新进行openvpn拨号.
