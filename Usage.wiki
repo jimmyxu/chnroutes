@@ -66,9 +66,16 @@ patch -p1 < path_to_the_patch_file
 
 
 对于使用项目下载页面里的预生成的bat文件的用户, 这些预生成的文件将会不定期进行更新, 因为ipv4的范围的变化不会十分大, 所以路由信息文件应该不需要频繁更新.
+另外, 有windows用户反映vbs文件并不能在openvpn里被正确调用, 这个大概是因为一些系统并没有建立到vbs文件的关联, 解决方法有2, 把.vbs文件的默认运行方式指定为`C:\WINDOWS\system32\wscript.exe` (这里用wscript,不用cscript是防止出现那个黑色的console界面) 又或者干脆在openvpn的配置里设置:
+    {{{
+    script-security 2
+    up '"C:/WINDOWS/system32/wscript.exe" "C:/Program Files/OpenVPN/config/vpnup.vbs"'
+    down '"C:/WINDOWS/system32/wscript.exe" "C:/Program Files/OpenVPN/config/vpndown.vbs"'
+    }}}
 ===pptp===
 文件生成/获取方式同上, 但由于windows上的pptp不支持拨号脚本, 所以也只能在进行拨号之前手动执行vpnup.bat文件以设置路由表. 而在断开vpn之后, 如果你觉得有必要, 可以运行vpndown.bat把这些路由信息给清理掉.
 
+不过, 也还是有一个方法可以实现在拨号同时进行路由表设置的, 只需要在vpnup.vbs文件末尾加上对rasphone.exe的呼叫, 进行拨号, 这样不再需要手动进行pptp拨号动作, 而只运行这个vbs就可以了. 有兴趣的同学, 可以研究一下.
 = Android = 
 ===openvpn===
   # 下载 chnroutes_ovpn_android 文件到任意安装有python环境的机器上
