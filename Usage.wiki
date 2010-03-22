@@ -42,6 +42,7 @@ patch -p1 < path_to_the_patch_file
   # 在终端里运行命令 `chmod a+x vpnup vpndown` 把这两个文件设置为可执行
   # 把这两个文件copy到openvpn的配置目录并修过openvpn配置文件, 在末尾加上两句:
     {{{
+    script-security 2
     up vpnup
     down vpndown
     }}}
