@@ -79,7 +79,7 @@ patch -p1 < path_to_the_patch_file
 = Android = 
 ===openvpn===
   # 下载 chnroutes_ovpn_android 文件到任意安装有python环境的机器上
-  # 在命令行里进入下载目录, 执行`python chnroutes_ovpn_android`, 这讲生成'vpnup.sh'和'vpndown.sh'两个文件.
+  # 在命令行里进入下载目录, 执行`python chnroutes_ovpn_android`, 这将生成'vpnup.sh'和'vpndown.sh'两个文件.
   # 把步骤2生成的两个文件拷贝到 android 的 /sdcard/openvpn/目录下, 然后修改openvpn配置文件, 在文件中加上以上三句:
     {{{
     script-security 2
@@ -91,5 +91,15 @@ patch -p1 < path_to_the_patch_file
 
 另外, 这里假定了你的android已经安装过busybox, 否则请先安装busybox再进行以上操作, 还需要知道的是, 这个脚本在手机上执行会花费比较长的时间, 如非必要, 就不要用了. 也许采用非redirect-gateway方式, 然后在ovpn配置文件里添加几条需要路由的ip段是比较快捷方便的做法.
 
+= Openvpn v2.1 or Higher =
+本方法适用于使用openvpn v2.1或更高版本的用户. 因为openvpn v2.1比之前版本增加了一个名为max-routes的新参数, 通过设置该参数, 我们可以在配置文件里(服务端, 客户端)直接添加超过100条以上的路由信息. 具体设置步骤如下:
+  # 下载 chnroutes_openvpn_v2.1 文件
+  # 在命令行里执行 `python chnroutes_openvpn_v2.1`, 这将生成一个名为 routes.txt 的文本文件
+  # 使用你喜欢的文本编辑器打开上述文件, 并把内容复制粘贴到openvpn配置文件的末尾
+  # 同时在openvpn配置文件的头部添加一句 max-routes [num], 其中num是一个不小于文件routes.txt的行数的数字, 实际上因为还有一些服务器端push过来的路由信息, 所以保险起见可以用 routes.txt的行数加上50, 比如目前得到的routes.txt的行数是940, 你可以把数字设置为1000: max-routes 1000
+  # 修改完之后, 重新进行openvpn连接, 你可以用之前描述过的方法进行测试是否成功
+
+
+需要注意的是, 这里用到一个net_gateway的变量表示未连接openvpn前的网关地址, 但openvpn的文档里有说明这个不是所有系统都支持的, 如果发生这个情况, 可以修改一下生成脚本, 把net_gateway修改为你的局域网的网关地址.
 ==信息反馈==
 本项目的脚本都是在使用路由器进行拨号的情况下测试通过的, 如果在其它拨号方式下, 脚本不能运作, 请在本页添加comment说明. 或者添加一个新的issue. 另外, 在配合openvpn使用的时候, 可能会出现一种情况是因为网络质量不好, openvpn非主动断开, 这时候vpndown脚本也会被自动调用, 但重新连上之后, 可能会找不到默认的路由而添加失败, 这时候你可以通过停止openvpn重连, 并手动设置好原来的默认路由再重新进行openvpn拨号.
