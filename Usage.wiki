@@ -8,8 +8,8 @@
 在使用这些脚本之前, 请确保你在自己的电脑上已经成功配置好一个vpn连接(pptp 或者 openvpn), 并且让之以默认网络网关的方式运行, 这通常也是默认配置, 即vpn接入之后所有网络流量都通过vpn进行.
 
 = Mac OSX =
-===openvpn===
-(这里假定用户使用Tunnelblick作为openvpn客户端)
+===openvpn(假定为Tunnelblick)===
+*如果你使用的是最新版本的Tunnelblick, 请跳过此部分内容, 直接看下方关于Openvpn v2.1的描述*
   # 下载 chnroutes_ovpn_mac
   # 从终端进入下载目录, 执行`python chnroutes_ovpn_mac`, 执行完毕之后同一目录下将生成两个新文件'vpnup'和'vpndown'
   # 在终端里运行命令 `chmod a+x vpnup vpndown` 把这两个文件设置为可执行
@@ -37,6 +37,7 @@ patch -p1 < path_to_the_patch_file
 
 = Linux =
 ===openvpn===
+*如果你使用的openvpn版本为v2.1或以上, 请跳过此部分内容, 直接看下方关于Openvpn v2.1的描述*
   # 下载 chnroutes_ovpn_linux
   # 从终端进入下载目录, 执行`python chnroutes_ovpn_linux`, 执行完毕之后同一目录下将生成两个新文件'vpnup'和'vpndown'
   # 在终端里运行命令 `chmod a+x vpnup vpndown` 把这两个文件设置为可执行
@@ -52,6 +53,7 @@ patch -p1 < path_to_the_patch_file
 
 = Windows =
 ===openvpn===
+*如果你使用的openvpn版本为v2.1或以上, 请跳过此部分内容, 直接看下方关于Openvpn v2.1的描述*
   # 下载 chnroutes_ovpn_win 文件
   # 对于已经安装有python的用户, 在命令行方式进入到下载到的文件所在目录, 执行`python chnroutes_ovpn_win`, 执行完毕之后同一目录下将生成'vpnup.bat', 'vpnup.vbs', 'vpndown.bat'和'vpndown.vbs'共四个文件. (如果你没有python, 可以直接下载项目下载页面上的pre_created_for_win.zip文件, 解开之后你将能得到预生成的上述4个文件)
   # 把上述的四个新生成的文件copy到openvpn配置文件所在的目录
