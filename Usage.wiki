@@ -7,9 +7,22 @@
 
 在使用这些脚本之前, 请确保你在自己的电脑上已经成功配置好一个vpn连接(pptp 或者 openvpn), 并且让之以默认网络网关的方式运行, 这通常也是默认配置, 即vpn接入之后所有网络流量都通过vpn进行.
 
+= Openvpn =
+* 使用此法之前, 请确认openvpn版本是否为 v2.1 或者以上, 如果不是请参看下方不同系统关于openvpn部分的描述 *
+=== 客户端设置 ===
+本方法适用于使用openvpn v2.1或更高版本的用户. 因为openvpn v2.1比之前版本增加了一个名为max-routes的新参数, 通过设置该参数, 我们可以在配置文件里(服务端, 客户端)直接添加超过100条以上的路由信息. 具体设置步骤如下:
+  # 下载 chnroutes_openvpn_v2.1 文件
+  # 在命令行里执行 `python chnroutes_openvpn_v2.1`, 这将生成一个名为 routes.txt 的文本文件. 对于不想安装python的用户, 可以直接从项目下来列表里下载该文件. 它将会每月更新一次.
+  # 使用你喜欢的文本编辑器打开上述文件, 并把内容复制粘贴到openvpn配置文件的末尾
+  # 同时在openvpn配置文件的头部添加一句 max-routes [num], 其中num是一个不小于文件routes.txt的行数的数字, 实际上因为还有一些服务器端push过来的路由信息, 所以保险起见可以用 routes.txt的行数加上50, 比如目前得到的routes.txt的行数是940, 你可以把数字设置为1000: max-routes 1000
+  # 修改完之后, 重新进行openvpn连接, 你可以用之前描述过的方法进行测试是否成功
+
+
+以上方法在Mac OSX, Linux 和 Windows 7上测试通过. 但需要注意的是, 这里用到一个net_gateway的变量表示未连接openvpn前的网关地址, 但openvpn的文档里有说明这个不是所有系统都支持的, 如果发生这个情况, 可以修改一下生成脚本, 把net_gateway修改为你的局域网的网关地址.
+
 = Mac OSX =
 ===openvpn(假定为Tunnelblick)===
-*如果你使用的是最新版本的Tunnelblick, 请跳过此部分内容, 直接看下方关于Openvpn v2.1的描述*
+*如果你使用的是最新版本的Tunnelblick, 请跳过此部分内容, 直接看上方关于Openvpn v2.1的描述*
   # 下载 chnroutes_ovpn_mac
   # 从终端进入下载目录, 执行`python chnroutes_ovpn_mac`, 执行完毕之后同一目录下将生成两个新文件'vpnup'和'vpndown'
   # 在终端里运行命令 `chmod a+x vpnup vpndown` 把这两个文件设置为可执行
@@ -37,7 +50,7 @@ patch -p1 < path_to_the_patch_file
 
 = Linux =
 ===openvpn===
-*如果你使用的openvpn版本为v2.1或以上, 请跳过此部分内容, 直接看下方关于Openvpn v2.1的描述*
+*如果你使用的openvpn版本为v2.1或以上, 请跳过此部分内容, 直接看上方关于Openvpn v2.1的描述*
   # 下载 chnroutes_ovpn_linux
   # 从终端进入下载目录, 执行`python chnroutes_ovpn_linux`, 执行完毕之后同一目录下将生成两个新文件'vpnup'和'vpndown'
   # 在终端里运行命令 `chmod a+x vpnup vpndown` 把这两个文件设置为可执行
@@ -53,7 +66,7 @@ patch -p1 < path_to_the_patch_file
 
 = Windows =
 ===openvpn===
-*如果你使用的openvpn版本为v2.1或以上, 请跳过此部分内容, 直接看下方关于Openvpn v2.1的描述*
+*如果你使用的openvpn版本为v2.1或以上, 请跳过此部分内容, 直接看上方关于Openvpn v2.1的描述*
   # 下载 chnroutes_ovpn_win 文件
   # 对于已经安装有python的用户, 在命令行方式进入到下载到的文件所在目录, 执行`python chnroutes_ovpn_win`, 执行完毕之后同一目录下将生成'vpnup.bat', 'vpnup.vbs', 'vpndown.bat'和'vpndown.vbs'共四个文件. (如果你没有python, 可以直接下载项目下载页面上的pre_created_for_win.zip文件, 解开之后你将能得到预生成的上述4个文件)
   # 把上述的四个新生成的文件copy到openvpn配置文件所在的目录
@@ -78,6 +91,7 @@ patch -p1 < path_to_the_patch_file
 文件生成/获取方式同上, 但由于windows上的pptp不支持拨号脚本, 所以也只能在进行拨号之前手动执行vpnup.bat文件以设置路由表. 而在断开vpn之后, 如果你觉得有必要, 可以运行vpndown.bat把这些路由信息给清理掉.
 
 不过, 也还是有一个方法可以实现在拨号同时进行路由表设置的, 只需要在vpnup.vbs文件末尾加上对rasphone.exe的呼叫, 进行拨号, 这样不再需要手动进行pptp拨号动作, 而只运行这个vbs就可以了. 有兴趣的同学, 可以研究一下.
+
 = Android = 
 ===openvpn===
   # 下载 chnroutes_ovpn_android 文件到任意安装有python环境的机器上
@@ -93,15 +107,6 @@ patch -p1 < path_to_the_patch_file
 
 另外, 这里假定了你的android已经安装过busybox, 否则请先安装busybox再进行以上操作, 还需要知道的是, 这个脚本在手机上执行会花费比较长的时间, 如非必要, 就不要用了. 也许采用非redirect-gateway方式, 然后在ovpn配置文件里添加几条需要路由的ip段是比较快捷方便的做法.
 
-= Openvpn v2.1 or Higher =
-本方法适用于使用openvpn v2.1或更高版本的用户. 因为openvpn v2.1比之前版本增加了一个名为max-routes的新参数, 通过设置该参数, 我们可以在配置文件里(服务端, 客户端)直接添加超过100条以上的路由信息. 具体设置步骤如下:
-  # 下载 chnroutes_openvpn_v2.1 文件
-  # 在命令行里执行 `python chnroutes_openvpn_v2.1`, 这将生成一个名为 routes.txt 的文本文件
-  # 使用你喜欢的文本编辑器打开上述文件, 并把内容复制粘贴到openvpn配置文件的末尾
-  # 同时在openvpn配置文件的头部添加一句 max-routes [num], 其中num是一个不小于文件routes.txt的行数的数字, 实际上因为还有一些服务器端push过来的路由信息, 所以保险起见可以用 routes.txt的行数加上50, 比如目前得到的routes.txt的行数是940, 你可以把数字设置为1000: max-routes 1000
-  # 修改完之后, 重新进行openvpn连接, 你可以用之前描述过的方法进行测试是否成功
 
-
-需要注意的是, 这里用到一个net_gateway的变量表示未连接openvpn前的网关地址, 但openvpn的文档里有说明这个不是所有系统都支持的, 如果发生这个情况, 可以修改一下生成脚本, 把net_gateway修改为你的局域网的网关地址.
 ==信息反馈==
 本项目的脚本都是在使用路由器进行拨号的情况下测试通过的, 如果在其它拨号方式下, 脚本不能运作, 请在本页添加comment说明. 或者添加一个新的issue. 另外, 在配合openvpn使用的时候, 可能会出现一种情况是因为网络质量不好, openvpn非主动断开, 这时候vpndown脚本也会被自动调用, 但重新连上之后, 可能会找不到默认的路由而添加失败, 这时候你可以通过停止openvpn重连, 并手动设置好原来的默认路由再重新进行openvpn拨号.
