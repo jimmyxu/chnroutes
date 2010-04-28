@@ -18,7 +18,11 @@
   # 修改完之后, 重新进行openvpn连接, 你可以用之前描述过的方法进行测试是否成功
 
 
-以上方法在Mac OSX, Linux 和 Windows 7上测试通过. 但需要注意的是, 这里用到一个net_gateway的变量表示未连接openvpn前的网关地址, 但openvpn的文档里有说明这个不是所有系统都支持的, 如果发生这个情况, 可以修改一下生成脚本, 把net_gateway修改为你的局域网的网关地址.
+以上方法在Mac OSX, Linux 和 Windows上测试通过. 但需要注意的是, 这里用到一个net_gateway的变量表示未连接openvpn前的网关地址, 但openvpn的文档里有说明这个不是所有系统都支持的, 如果发生这个情况, 可以修改一下生成脚本, 把net_gateway修改为你的局域网的网关地址. 对于windows 7 和 vista, OpenVPN的windows客户端可能需要设置Windows XP兼容模式才能使用, 安装文件要在属性选择中的兼容性选择Windows XP和以管理员的身份运行，安装好的运行文件也同样选择这两个选项。如果还是不能连接到VPN的网络，可以尝试在配置文件中加入：
+{{{
+route-method exe
+route-delay 2
+}}} 
 
 = Mac OSX =
 ===openvpn(假定为Tunnelblick)===
