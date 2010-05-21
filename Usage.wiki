@@ -24,6 +24,10 @@ route-method exe
 route-delay 2
 }}} 
 
+
+=== 注意事项 ===
+  * 因为这些ip数据不是固定不变的, 尽管变化不大, 但还是建议每隔两三个月更新一次
+  * 使用此法之后, 可能会导致google music无法访问, 这个其实是因为连上vpn之后, 使用的dns也是国外的, 国外dns对google.cn 解析出来的是国外的ip, 所以一个简单的解决方法是修改本机的hosts文件, 把国内dns解析出来的google.cn的地址写上去: ` 203.208.39.99 www.google.cn google.cn`
 = Mac OSX =
 ===openvpn(假定为Tunnelblick)===
 *如果你使用的是最新版本的Tunnelblick, 请跳过此部分内容, 直接看上方关于Openvpn v2.1的描述*
