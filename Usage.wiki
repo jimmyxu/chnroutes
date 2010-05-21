@@ -68,7 +68,7 @@ patch -p1 < path_to_the_patch_file
     up vpnup
     down vpndown
     }}}
-  # 设置完毕, 重连openvpn.  测试方法同mac osx, 但需要使用 `ip route` 代替mac上的 `route get` 命令
+  # 设置完毕, 重连openvpn.  测试方法同mac osx, 但需要使用 `ip route get` 代替mac上的 `route get` 命令
 ===pptp===
 使用跟openvpn_linux相同的生成脚本, 区别是把生成的vpnup文件改名为 ip-pre-up, 并把ip-pre-up 拷贝到 /etc/ppp目录, vpndown 拷贝到 /etc/ppp/ip-down.d 目录. 测试步骤同上.
 
