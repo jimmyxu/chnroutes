@@ -9,15 +9,45 @@ import textwrap
 
 
 def generate_ovpn(metric):
-    results = fetch_ip_data()  
-    rfile=open('routes.txt','w')
-    for ip,mask,_ in results:
-        route_item="route %s %s net_gateway %d\n"%(ip,mask,metric)
-        rfile.write(route_item)
-    rfile.close()
-    print "Usage: Append the content of the newly created routes.txt to your openvpn config file," \
-          " and also add 'max-routes %d', which takes a line, to the head of the file." % (len(results)+20)
+    results = fetch_ip_data()
 
+    upscript_header=textwrap.dedent("""\
+    #!/bin/bash -
+    
+    OLDGW=$(ip route show 0/0 | head -n1 | grep 'via' | grep -Po '\d+\.\d+\.\d+\.\d+')
+
+    ip -batch - <<EOF
+    """)
+    
+    downscript_header=textwrap.dedent("""\
+    #!/bin/sh
+    
+    ip -batch - <<EOF
+    """)
+    
+    upfile=open('vpnup.sh','w')
+    downfile=open('vpndown.sh','w')
+
+    upfile.write(upscript_header)
+    upfile.write('\n')
+    downfile.write(downscript_header)
+    downfile.write('\n')
+
+    for ip,_,mask in results:
+        upfile.write('route add %s/%s via $OLDGW\n'%(ip,mask))
+        downfile.write('route del %s/%s\n'%(ip,mask))
+
+    upfile.write('EOF\n')
+    downfile.write('EOF\n')
+
+    upfile.close()
+    downfile.close()
+
+    print """Usage: Place vpn{up,down}.sh into /etc/openvpn/, and add
+           script-security 2
+           up vpnup.sh
+           down vpndown.sh
+       to your openvpn.conf."""
 
 def generate_linux(metric):
     results = fetch_ip_data()
