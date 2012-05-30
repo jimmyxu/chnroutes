@@ -18,19 +18,19 @@ OLDGW=$(ip route show 0/0 | head -n1 | grep 'via' | grep -Po '\d+\.\d+\.\d+\.\d+
 ip -batch - <<EOF
 """
     downscript_header = """\
-#!/bin/sh
+#!/bin/bash -
 
 ip -batch - <<EOF
 """
 
-    upfile = open('vpnup.sh','w')
-    downfile = open('vpndown.sh','w')
+    upfile = open('vpn-up.sh', 'w')
+    downfile = open('vpn-down.sh', 'w')
 
     upfile.write(upscript_header)
     downfile.write(downscript_header)
 
     for ip, _, mask in results:
-        upfile.write('route add %s/%s via $OLDGW\n' % (ip, mask))
+        upfile.write('route add %s/%s via $OLDGW metric %s\n' % (ip, mask, metric))
         downfile.write('route del %s/%s\n' % (ip, mask))
 
     upfile.write('EOF\n')
@@ -40,7 +40,7 @@ ip -batch - <<EOF
     downfile.close()
 
     print """\
-Place vpn{up,down}.sh into /etc/openvpn/, chmod +x, and add
+Place vpn-{up,down}.sh into /etc/openvpn/, chmod +x, and add
     script-security 2
     up vpnup.sh
     down vpndown.sh
@@ -48,11 +48,11 @@ to your openvpn.conf."""
 
 def generate_linux(metric):
     results = fetch_ip_data()
-    upscript_header = """\
-#!/bin/bash
-export PATH="/bin:/sbin:/usr/sbin:/usr/bin"
 
-OLDGW=`ip route show | grep '^default' | sed -e 's/default via \\([^ ]*\\).*/\\1/'`
+    upscript_header = """\
+#!/bin/bash -
+
+OLDGW=$(ip route show 0/0 | head -n1 | grep 'via' | grep -Po '\d+\.\d+\.\d+\.\d+')
 
 if [ $OLDGW == '' ]; then
     exit 0
@@ -69,27 +69,30 @@ ip -batch - <<EOF
 #!/bin/bash
 export PATH="/bin:/sbin:/usr/sbin:/usr/bin"
 
-OLDGW=`cat /tmp/vpn_oldgw`
+OLDGW=$(cat /tmp/vpn_oldgw)
 
 ip -batch - <<EOF
 """
 
-    upfile = open('ip-pre-up','w')
-    downfile = open('ip-down','w')
+    upfile = open('ip-pre-up', 'w')
+    downfile = open('ip-down', 'w')
 
     upfile.write(upscript_header)
     downfile.write(downscript_header)
 
     for ip, _, mask in results:
-        upfile.write('route add %s/%s via $OLDGW\n' % (ip, mask))
+        upfile.write('route add %s/%s via $OLDGW metric %s\n' % (ip, mask, metric))
         downfile.write('route del %s/%s\n' % (ip, mask))
 
     upfile.write('EOF\n')
-    downfile.write('EOF\n')
-    downfile.write('rm /tmp/vpn_oldgw\n')
+    downfile.write('''\
+EOF
 
-    print "For pptp only, please copy the file ip-pre-up to the folder/etc/ppp," \
-          "and copy the file ip-down to the folder /etc/ppp/ip-down.d."
+rm /tmp/vpn_oldgw
+''')
+
+    print "For pptp only, please copy the file ip-pre-up to /etc/ppp/," \
+          "and copy the file ip-down to /etc/ppp/ip-down.d/."
 
 def generate_mac(metric):
     results=fetch_ip_data()
