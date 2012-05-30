@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-import re
-import urllib2
-import sys
 import argparse
 import math
-import textwrap
+import re
+import subprocess
+import sys
+import urllib2
 
 def generate_ovpn(metric):
     results = fetch_ip_data()
@@ -210,10 +210,12 @@ alias route='/system/xbin/busybox route'
 
 
 def fetch_ip_data():
-    #fetch data from apnic
-    print "Fetching data from apnic.net, it might take a few minutes, please wait..."
-    url = r'http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest'
-    data = urllib2.urlopen(url).read()
+    url = 'http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest'
+    try:
+        data = subprocess.check_output(['wget', url, '-O-'])
+    except (OSError, AttributeError):
+        print >>sys.stderr, "Fetching data from apnic.net, it might take a few minutes, please wait..."
+        data = urllib2.urlopen(url).read()
 
     cnregex = re.compile(r'apnic\|cn\|ipv4\|[0-9\.]+\|[0-9]+\|[0-9]+\|a.*', re.IGNORECASE)
     cndata = cnregex.findall(data)
