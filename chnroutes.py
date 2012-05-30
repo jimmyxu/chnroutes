@@ -35,6 +35,7 @@ def generate_linux(metric):
         echo $OLDGW > /tmp/vpn_oldgw
     fi
     
+    ip -batch - <<EOF
     """)
     
     downscript_header=textwrap.dedent("""\
@@ -43,6 +44,7 @@ def generate_linux(metric):
     
     OLDGW=`cat /tmp/vpn_oldgw`
     
+    ip -batch - <<EOF
     """)
     
     upfile=open('ip-pre-up','w')
@@ -53,10 +55,12 @@ def generate_linux(metric):
     downfile.write(downscript_header)
     downfile.write('\n')
     
-    for ip,mask,_ in results:
-        upfile.write('route add -net %s netmask %s gw $OLDGW\n'%(ip,mask))
-        downfile.write('route del -net %s netmask %s\n'%(ip,mask))
+    for ip,_,mask in results:
+        upfile.write('route add %s/%s via $OLDGW\n'%(ip,mask))
+        downfile.write('route del %s/%s\n'%(ip,mask))
 
+    upfile.write('EOF\n')
+    downfile.write('EOF\n')
     downfile.write('rm /tmp/vpn_oldgw\n')
 
 
