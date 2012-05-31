@@ -183,7 +183,7 @@ def fetch_ip_data():
         print >>sys.stderr, "Fetching data from apnic.net, it might take a few minutes, please wait..."
         data = urllib2.urlopen(url).read()
 
-    cnregex = re.compile(r'apnic\|cn\|ipv4\|[0-9\.]+\|[0-9]+\|[0-9]+\|a.*', re.IGNORECASE)
+    cnregex = re.compile(r'^apnic\|cn\|ipv4\|[\d\.]+\|\d+\|\d+\|a\w*$', re.I | re.M)
     cndata = cnregex.findall(data)
 
     results = []
@@ -194,39 +194,32 @@ def fetch_ip_data():
         num_ip = int(unit_items[4])
 
         imask = 0xffffffff ^ (num_ip - 1)
-        #convert to string
         imask = hex(imask)[2:]
-        mask = [0] * 4
-        mask[0] = imask[0:2]
-        mask[1] = imask[2:4]
-        mask[2] = imask[4:6]
-        mask[3] = imask[6:8]
 
-        #convert str to int
-        mask = [int(i, 16) for i in mask]
-        mask = "%d.%d.%d.%d" % tuple(mask)
+        mask = [imask[i:i + 2] for i in xrange(0, 8, 2)]
+        mask = '.'.join([str(int(i, 16)) for i in mask])
 
-        #mask in *nix format
-        mask2 = 32 - int(math.log(num_ip, 2))
+        cidr = 32 - int(math.log(num_ip, 2))
 
-        results.append((starting_ip, mask, mask2))
+        results.append((starting_ip, mask, cidr))
 
     return results
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Generate routing rules for vpn.")
-    parser.add_argument('-p', '--platform',
+    parser = argparse.ArgumentParser(description="Generate routing rules for VPN users in China.")
+    parser.add_argument('-p',
                         dest='platform',
                         default='openvpn',
                         nargs='?',
-                        help="Target platform, it can be openvpn, old,  mac, linux, win. openvpn by default.")
-    parser.add_argument('-m', '--metric',
+                        choices=['openvpn', 'old', 'mac', 'linux', 'win'],
+                        help="target platform")
+    parser.add_argument('-m',
                         dest='metric',
                         default=5,
                         nargs='?',
                         type=int,
-                        help="Metric setting for the route rules")
+                        help="metric")
 
     args = parser.parse_args()
 
@@ -241,5 +234,4 @@ if __name__ == '__main__':
     elif args.platform.lower() == 'win':
         generate_win(args.metric)
     else:
-        print >>sys.stderr, "Platform %s is not supported." % args.platform
         exit(1)
