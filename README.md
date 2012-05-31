@@ -13,10 +13,12 @@
 
 ## OpenVPN
 
+如安装有`iproute2`软件包，请尽量使用此方式。自带方式在路由表条目较多时执行极慢。
+
 ### iproute2
 
 1. 执行`python chnroutes.py`，这将生成`vpn-up.sh`和`vpn-down.sh`两个文件；
-2. 将上述两个文件移入`/etc/openvpn/`中，并加上执行权限；
+2. 将这两个文件移入`/etc/openvpn/`；
 3. 在OpenVPN配置文件中加入：
 ```    script-security 2
     up vpn-up.sh
@@ -30,26 +32,26 @@
 3. 重新连接VPN，观察日志测试。
 
 ## PPTP
-### Mac OSX
+### Mac OS X
 
-1. 从终端进入下载目录，执行`python chnroutes.py -p mac`，执行完毕之后同一目录下将生成两个新文件`ip-up`和`ip-down`；
-2. 把这两个文件复制到`/etc/ppp/`目录，并使用`sudo chmod a+x ip-up ip-down`命令把它们设置为可执行；
-3. 设置完毕，重新连接VPN。
+1. 在终端中执行`python chnroutes.py -p mac`，这将生成`ip-up`和`ip-down`两个文件；
+2. 将这两个文件移入`/etc/ppp/`；
+3. 重新连接VPN，观察测试。
 
 ### Linux
 
-1.从终端进入下载目录，执行`python chnroutes.py -p linux`，执行完毕之后同一目录下将生成两个新文件`ip-pre-up`和`ip-down`.
-2. 把`ip-pre-up`拷贝到`/etc/ppp/`目录，`ip-down`拷贝到`/etc/ppp/ip-down.d/`目录；
-3. 设置完毕，重新连接VPN。
+1. 执行`python chnroutes.py -p linux`，这将生成`ip-pre-up`和`ip-down`两个文件；
+2. 将`ip-pre-up`移入`/etc/ppp/`，`ip-down`移入`/etc/ppp/ip-down.d/`；
+3. 重新连接VPN，观察测试。
 
 ### Windows
 
-1. 从终端进入下载目录，执行`python chnroutes.py -p win`，执行之后会生成`vpnup.bat`和`vpndown.bat`两个文件。
-2. 由于Windows上的PPTP不支持拨号脚本，所以也只能在进行拨号之前手动执行`vpnup.bat`文件以设置路由表。而在断开VPN之后，如果你觉得有必要，可以运行`vpndown.bat`把这些路由信息给清理掉.
+1. 在命令提示符中执行`python chnroutes.py -p win`，这将生成`vpnup.bat`和`vpndown.bat`两个文件；
+2. 在拨号前手动执行`vpnup.bat`文件设置路由表；在断开VPN后，可运行`vpndown.bat`清理路由表。
 
 ## 基于Linux的第三方系统的路由器
 
-一些基于Linux系统的第三方路由器系统如: OpenWRT，DD-WRT，Tomato 都带有VPN(PPTP/Openvpn)客户端的， 也就是说，我们只需要在路由器进行VPN拨号，并利用本项目提供的路由表脚本就可以把VPN针对性翻墙扩展到整个局域网。当然，使用这个方式也是会带来副作用，即局域网的任何机器都不适合使用Emule或者BT等P2P下载软件。但对于那些不使用P2P，希望在路由器上设置针对性翻墙的用户，这方法十分有用，因为只需要一个VPN帐号，局域网内的所有机器，包括使用wifi的手机都能自动翻墙。相信配置方式请参考[Autoddvpn](http://code.google.com/p/autoddvpn/)项目。
+一些基于Linux系统的第三方路由器系统如OpenWRT、DD-WRT、Tomato都带有VPN（PPTP/OpenVPN）客户端的，也就是说，我们只需要在路由器进行VPN拨号，并利用本项目提供的路由表脚本就可以把VPN针对性翻墙扩展到整个局域网。当然，使用这个方式也是会带来副作用，即局域网的任何机器都不适合使用Emule或者BT等P2P下载软件。但对于那些不使用P2P，希望在路由器上设置针对性翻墙的用户，这方法十分有用，因为只需要一个VPN帐号，局域网内的所有机器，包括使用Wi-Fi的手机都能自动翻墙。详细配置方式请参考[Autoddvpn](http://code.google.com/p/autoddvpn/)项目。
 
 ## 信息反馈
 

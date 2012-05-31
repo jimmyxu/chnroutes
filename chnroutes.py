@@ -2,6 +2,7 @@
 
 import argparse
 import math
+import os
 import re
 import subprocess
 import sys
@@ -38,6 +39,9 @@ ip -batch - <<EOF
 
     upfile.close()
     downfile.close()
+
+    os.chmod('vpn-up.sh', 00755)
+    os.chmod('vpn-down.sh', 00755)
 
 def generate_old(metric):
     results = fetch_ip_data()
@@ -96,6 +100,12 @@ EOF
 rm /tmp/vpn_oldgw
 ''')
 
+    upfile.close()
+    downfile.close()
+
+    os.chmod('ip-pre-up', 00755)
+    os.chmod('ip-down', 00755)
+
 def generate_mac(metric):
     results=fetch_ip_data()
 
@@ -134,8 +144,12 @@ OLDGW=`cat /tmp/pptp_oldgw`
         downfile.write('route delete %s/%s ${OLDGW}\n' % (ip, mask))
 
     downfile.write('\n\nrm /tmp/pptp_oldgw\n')
+
     upfile.close()
     downfile.close()
+
+    os.chmod('ip-up', 00755)
+    os.chmod('ip-down', 00755)
 
 def generate_win(metric):
     results = fetch_ip_data()
@@ -202,12 +216,12 @@ def fetch_ip_data():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Generate routing rules for vpn.")
-    parser.add_argument('-p','--platform',
+    parser.add_argument('-p', '--platform',
                         dest='platform',
                         default='openvpn',
                         nargs='?',
                         help="Target platform, it can be openvpn, old,  mac, linux, win. openvpn by default.")
-    parser.add_argument('-m','--metric',
+    parser.add_argument('-m', '--metric',
                         dest='metric',
                         default=5,
                         nargs='?',
