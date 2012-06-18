@@ -20,9 +20,13 @@
 1. 执行`python chnroutes.py`，这将生成`vpn-up.sh`和`vpn-down.sh`两个文件；
 2. 将这两个文件移入`/etc/openvpn/`；
 3. 在OpenVPN配置文件中加入：
-```    script-security 2
+
+    ```
+    script-security 2
     up vpn-up.sh
-    down vpn-down.sh```
+    down vpn-down.sh
+    ```
+
 4. 重新连接VPN，观察日志测试。
 
 ### 自带方式
