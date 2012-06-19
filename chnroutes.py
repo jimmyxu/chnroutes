@@ -14,6 +14,7 @@ def generate_ovpn(metric):
     upscript_header = """\
 #!/bin/bash -
 
+export PATH="/bin:/sbin:/usr/sbin:/usr/bin"
 OLDGW=$(ip route show 0/0 | head -n1 | grep 'via' | grep -Po '\d+\.\d+\.\d+\.\d+')
 
 ip -batch - <<EOF
@@ -21,6 +22,7 @@ ip -batch - <<EOF
     downscript_header = """\
 #!/bin/bash -
 
+export PATH="/bin:/sbin:/usr/sbin:/usr/bin"
 ip -batch - <<EOF
 """
 
