@@ -8,14 +8,14 @@ import subprocess
 import sys
 import urllib2
 
-def generate_ovpn(metric):
+def generate_ovpn(_):
     results = fetch_ip_data()
 
     upscript_header = """\
 #!/bin/bash -
 
 export PATH="/bin:/sbin:/usr/sbin:/usr/bin"
-OLDGW=$(ip route show 0/0 | head -n1 | grep 'via' | grep -Po '\d+\.\d+\.\d+\.\d+')
+OLDGW=$(ip route show 0/0 | sed -e 's/^default//')
 
 ip -batch - <<EOF
 """
@@ -33,7 +33,7 @@ ip -batch - <<EOF
     downfile.write(downscript_header)
 
     for ip, _, mask in results:
-        upfile.write('route add %s/%s via $OLDGW metric %s\n' % (ip, mask, metric))
+        upfile.write('route add %s/%s $OLDGW\n' % (ip, mask))
         downfile.write('route del %s/%s\n' % (ip, mask))
 
     upfile.write('EOF\n')
@@ -92,7 +92,8 @@ ip -batch - <<EOF
     downfile.write(downscript_header)
 
     for ip, _, mask in results:
-        upfile.write('route add %s/%s via $OLDGW metric %s\n' % (ip, mask, metric))
+        upfile.write('route add %s/%s via $OLDGW metric %s\n' %
+                     (ip, mask, metric))
         downfile.write('route del %s/%s\n' % (ip, mask))
 
     upfile.write('EOF\n')
@@ -108,8 +109,8 @@ rm /tmp/vpn_oldgw
     os.chmod('ip-pre-up', 00755)
     os.chmod('ip-down', 00755)
 
-def generate_mac(metric):
-    results=fetch_ip_data()
+def generate_mac(_):
+    results = fetch_ip_data()
 
     upscript_header = """\
 #!/bin/sh
@@ -171,7 +172,8 @@ for /F "tokens=3" %%* in ('route print ^| findstr "\\<0.0.0.0\\>"') do set "gw=%
     downfile.write('\n')
 
     for ip, mask, _ in results:
-        upfile.write('route add %s mask %s %s metric %d\n' % (ip, mask, "%gw%", metric))
+        upfile.write('route add %s mask %s %s metric %d\n' %
+                     (ip, mask, "%gw%", metric))
         downfile.write('route delete %s\n' % ip)
 
     upfile.close()
@@ -182,10 +184,12 @@ def fetch_ip_data():
     try:
         data = subprocess.check_output(['wget', url, '-O-'])
     except (OSError, AttributeError):
-        print >>sys.stderr, "Fetching data from apnic.net, it might take a few minutes, please wait..."
+        print >> sys.stderr, "Fetching data from apnic.net, "\
+                             "it might take a few minutes, please wait..."
         data = urllib2.urlopen(url).read()
 
-    cnregex = re.compile(r'^apnic\|cn\|ipv4\|[\d\.]+\|\d+\|\d+\|a\w*$', re.I | re.M)
+    cnregex = re.compile(r'^apnic\|cn\|ipv4\|[\d\.]+\|\d+\|\d+\|a\w*$',
+                         re.I | re.M)
     cndata = cnregex.findall(data)
 
     results = []
@@ -207,9 +211,9 @@ def fetch_ip_data():
 
     return results
 
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Generate routing rules for VPN users in China.")
+def main():
+    parser = argparse.ArgumentParser(
+                 description="Generate routing rules for VPN users in China.")
     parser.add_argument('-p',
                         dest='platform',
                         default='openvpn',
@@ -237,3 +241,6 @@ if __name__ == '__main__':
         generate_win(args.metric)
     else:
         exit(1)
+
+if __name__ == '__main__':
+    main()
